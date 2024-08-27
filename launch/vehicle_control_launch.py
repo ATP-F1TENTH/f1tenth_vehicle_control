@@ -10,6 +10,13 @@ import os
 import yaml
 
 def generate_launch_description():
+
+    vesc_parameters = { 'speed_to_erpm_gain' :             4180.0, #factor to compute forward motion
+                        'speed_to_erpm_offset':            0.0,
+                        'steering_angle_to_servo_gain':    -0.67,   #default was -1.2135
+                        'steering_angle_to_servo_offset':  0.47 #0.5100  #makes the car drive straight
+    }
+
     ld = LaunchDescription()  
 
     #autonomous driving controller
@@ -20,6 +27,13 @@ def generate_launch_description():
         name='gap_follower',
         parameters=[],
         remappings=[('/drive', '/to_drive')] #gap following publishes to vehicle_control_node
+    )
+
+    pure_pursuit_node = Node(
+        package='raceline',
+        executable='pure_pursuit',
+        output='screen',
+        name='pure_pursuit_node'
     )
 
     #vehicle control - manual intervention for autonomous driving
@@ -59,7 +73,14 @@ def generate_launch_description():
 
     vesc_odometer = IncludeLaunchDescription(
                         AnyLaunchDescriptionSource([
-                            FindPackageShare("vesc_ackermann"), '/launch', '/vesc_to_odom_node.launch.xml'])
+                            FindPackageShare("vesc_ackermann"), '/launch', '/vesc_to_odom_node.launch.xml']),
+                        launch_arguments={
+                            'speed_to_erpm_gain' :              str(vesc_parameters['speed_to_erpm_gain']),
+                            'speed_to_erpm_offset':             str(vesc_parameters['speed_to_erpm_offset']),
+                            'steering_angle_to_servo_gain':     str(vesc_parameters['steering_angle_to_servo_gain']),
+                            'steering_angle_to_servo_offset':   str(vesc_parameters['steering_angle_to_servo_offset']),
+                            'use_imu_to_calc_angular_velocity': str(True)
+                        }.items()
                         )
 
     #ackermann driver for vesc
@@ -68,10 +89,10 @@ def generate_launch_description():
         package="vesc_ackermann",
         executable="ackermann_to_vesc_node",
         name="ackermann_to_vesc_node",
-        parameters=[{'speed_to_erpm_gain' : 4614.0},
-                    {'speed_to_erpm_offset': 0.0},
-                    {'steering_angle_to_servo_gain': -1.2135},
-                    {'steering_angle_to_servo_offset': 0.5004},
+        parameters=[{'speed_to_erpm_gain' :             vesc_parameters['speed_to_erpm_gain']},
+                    {'speed_to_erpm_offset':            vesc_parameters['speed_to_erpm_offset']},
+                    {'steering_angle_to_servo_gain':    vesc_parameters['steering_angle_to_servo_gain']},
+                    {'steering_angle_to_servo_offset':  vesc_parameters['steering_angle_to_servo_offset']},
                    ],
         remappings=[('/ackermann_cmd', '/drive')]
     )
@@ -89,15 +110,38 @@ def generate_launch_description():
             arguments = ['--x', '0.23', '--y', '0', '--z', '0', '--yaw', '0', '--pitch', '0', '--roll', '0', '--frame-id', 'base_link', '--child-frame-id', 'imu']
         )
 
+    aestaetic_node = Node(
+        package='aesthetic_control',
+        executable='aesthetic_control',
+        output='screen',
+        name='aesthetic_control',
+        parameters=[]
+    )
+
+    camera_node = Node(
+        package='camera_ros',
+        executable='camera_node',
+        output='screen',
+        name='camera',
+        parameters=[
+            {'width': 1152},
+            {'height': 648},
+            {'format': 'XRGB8888'}]
+    )
 
     # finalize
     ld.add_action(vehicle_control_node)
-    ld.add_action(gap_follower_node)
+
+    ld.add_action(pure_pursuit_node)
+    #ld.add_action(gap_follower_node)
+
     ld.add_action(joy_linux_node)
     ld.add_action(lidar_launchfile)
     ld.add_action(vesc_launchfile)
     ld.add_action(vesc_odometer)
     ld.add_action(vesc_ackermann)
+    ld.add_action(aestaetic_node)
+    ld.add_action(camera_node)
 
     ld.add_action(transform_laser_imu)
     ld.add_action(transform_imu_baselink)
