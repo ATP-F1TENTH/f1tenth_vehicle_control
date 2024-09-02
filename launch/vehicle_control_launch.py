@@ -11,10 +11,10 @@ import yaml
 
 def generate_launch_description():
 
-    vesc_parameters = { 'speed_to_erpm_gain' :             4180.0, #factor to compute forward motion
+    vesc_parameters = { 'speed_to_erpm_gain' :             5254.0, #factor to compute forward motion
                         'speed_to_erpm_offset':            0.0,
-                        'steering_angle_to_servo_gain':    -0.67,   #default was -1.2135
-                        'steering_angle_to_servo_offset':  0.47 #0.5100  #makes the car drive straight
+                        'steering_angle_to_servo_gain':    -0.752,   #to convert steering angle to servo position
+                        'steering_angle_to_servo_offset':  0.525   #makes the car drive straight
     }
 
     ld = LaunchDescription()  
@@ -110,6 +110,15 @@ def generate_launch_description():
             arguments = ['--x', '0.23', '--y', '0', '--z', '0', '--yaw', '0', '--pitch', '0', '--roll', '0', '--frame-id', 'base_link', '--child-frame-id', 'imu']
         )
 
+    #robot model
+    ego_robot_publisher = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='ego_robot_state_publisher',
+        parameters=[{'robot_description': Command(['xacro ', os.path.join(get_package_share_directory('vehicle_control'), 'launch', 'ego_racecar.xacro')])}],
+        remappings=[('/robot_description', 'ego_robot_description')]
+    )
+
     aestaetic_node = Node(
         package='aesthetic_control',
         executable='aesthetic_control',
@@ -142,6 +151,7 @@ def generate_launch_description():
     ld.add_action(vesc_ackermann)
     ld.add_action(aestaetic_node)
     ld.add_action(camera_node)
+    ld.add_action(ego_robot_publisher)
 
     ld.add_action(transform_laser_imu)
     ld.add_action(transform_imu_baselink)

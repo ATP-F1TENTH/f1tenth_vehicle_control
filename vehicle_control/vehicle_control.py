@@ -10,17 +10,18 @@ from rclpy.node import Node
 from ackermann_msgs.msg import AckermannDriveStamped
 from sensor_msgs.msg import Joy
 from std_msgs.msg import Bool
+from nav_msgs.msg import Odometry
 
 import aesthetic_control_interfaces.srv as ae_srv
 import aesthetic_control_interfaces.msg as ae_msg
-from nav_msgs.msg import Odometry
+
 
 import math
 
 TOPIC_OUT_DRIVE = "/drive"
-TOPIC_IN_ODOM = "/odom"
 TOPIC_IN_JOYSTICK = "/joy"
 TOPIC_IN_DRIVE = "/to_drive"
+TOPIC_IN_ODOM = "/odom"
 TOPIC_IN_EMERGENCY_BRAKE = "/emergency_brake"
 
 class VehicleControl(Node):
@@ -31,7 +32,9 @@ class VehicleControl(Node):
         self.__speed_mode = "slow"
         self.__last_speed = 0.0
         self.__is_currently_braking = False
-        self.__deaccelerating_epochs = 0
+
+        self.__decellerating_epochs = 0         #how many subsequent epochs did the vehilce decellerate?
+        self.__brakelight_on = False
 
         #declare default parameters
         self.declare_parameters(
@@ -44,7 +47,7 @@ class VehicleControl(Node):
                 ('button_index_map.slow_mode',       5),
                 ('button_index_map.start',           9),
                 ('vehicle.fast_mode_top_speed',      4),
-                ('vehicle.slow_mode_top_speed',      1),
+                ('vehicle.slow_mode_top_speed',      2),
                 
             ])
         
@@ -99,16 +102,17 @@ class VehicleControl(Node):
         speed_diff = abs(current_speed) - abs(self.__last_speed)
 
         if speed_diff < -eps or (-eps < abs(current_speed) < eps):
-            self.__deaccelerating_epochs = min(self.__deaccelerating_epochs+1, min_epochs)
-            if self.__deaccelerating_epochs >= min_epochs:
+            self.__decellerating_epochs = min(self.__decellerating_epochs+1, min_epochs)
+            if self.__decellerating_epochs >= min_epochs:
                 self.__is_currently_braking = True
         else:
-            self.__deaccelerating_epochs = max(self.__deaccelerating_epochs-1, 0)
-            if self.__deaccelerating_epochs == 0:
+            self.__decellerating_epochs = max(self.__decellerating_epochs-1, 0)
+            if self.__decellerating_epochs == 0:
                 self.__is_currently_braking = False
 
 
         self.__last_speed = current_speed
+
     
     def callback_on_joystick(self: "VehicleControl", msg: Joy):
         
@@ -185,17 +189,20 @@ class VehicleControl(Node):
         drive_msg.drive.speed = float(speed)
         self.__publisher_vesc.publish(drive_msg)
 
-        #handle brake lights depending on inputs to the vehicle
-        if self.__last_speed > drive_msg.drive.speed:
-            if not self.__is_currently_braking:
-                self.__services["brakelights"].call_async(ae_srv.BrakeLights.Request(brake_lights=True))
-            self.__is_currently_braking = True
-        else:
-            if self.__is_currently_braking:
-                self.__services["brakelights"].call_async(ae_srv.BrakeLights.Request(brake_lights=False))
-            self.__is_currently_braking = False
+        self.handle_brakelight()
 
-        self.__last_speed = drive_msg.drive.speed
+
+    def handle_brakelight(self: "VehicleControl"):
+        #handle brake lights depending on inputs to the vehicle
+        if self.__is_currently_braking:
+            if not self.__brakelight_on:
+                self.__services["brakelights"].call_async(ae_srv.BrakeLights.Request(brake_lights=True))
+                self.__brakelight_on = True
+        else:
+            if self.__brakelight_on:
+                self.__services["brakelights"].call_async(ae_srv.BrakeLights.Request(brake_lights=False))
+                self.__brakelight_on = False
+
 
     def get_underglow_msg(self, color):
         glow_msg= ae_msg.UnderglowColor()
