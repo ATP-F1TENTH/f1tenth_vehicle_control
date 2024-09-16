@@ -93,7 +93,22 @@ def generate_launch_description():
     )
 
 
+    #transforms required for mapping with nav2
+    transform_odom_map = Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            arguments = ['--x', '0', '--y', '0', '--z', '0', '--yaw', '0', '--pitch', '0', '--roll', '0', '--frame-id', 'map', '--child-frame-id', 'ego_racecar/odom']
+        )
+    transform_odom_baselink = Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            arguments = ['--x', '0', '--y', '0', '--z', '0', '--yaw', '0', '--pitch', '0', '--roll', '0', '--frame-id', 'ego_racecar/odom', '--child-frame-id', 'ego_racecar/base_link']
+        )
+
+
     # finalize
+    ld.add_action(transform_odom_map)
+    ld.add_action(transform_odom_baselink)
     ld.add_action(rviz_node)
     ld.add_action(bridge_node)
     ld.add_action(nav_lifecycle_node)
