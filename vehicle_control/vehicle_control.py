@@ -82,9 +82,12 @@ class VehicleControl(Node):
         self.__services["underglow"]        = self.create_client(ae_srv.Underglow,      '/carAest/underglow')
         
         #connect to services
-        for service in self.__services.values():
-            while not service.wait_for_service(timeout_sec=1.0):
-                self.get_logger().info(f'{service} service not available, waiting again...')
+        try_again_count = 3
+        for name in self.__services.keys():
+            service = self.__services[name]
+            while not service.wait_for_service(timeout_sec=1.0) and try_again_count > 0:
+                self.get_logger().info(f'{name} service not available, waiting again...')
+                try_again_count -= 1
 
         self.setup_vehicle()
 
