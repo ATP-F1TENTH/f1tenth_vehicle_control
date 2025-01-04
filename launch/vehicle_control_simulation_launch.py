@@ -70,6 +70,56 @@ def generate_launch_description():
         parameters=[]
     )
 
+    gap_follow_node = Node(
+        package='gap_follow',
+        executable='gap_follow',
+        output='screen',
+        name='gap_follow',
+        parameters=[],
+        remappings=[
+            ('/to_drive', '/drive') # order: (from where, where to)
+        ]
+    )
+
+    # pure pursuit race track follower
+    race_track_path = os.path.join(
+        get_package_share_directory('pure_pursuit'), 'config')
+    
+    paw_pure_pursuit_node = Node(
+        package="pure_pursuit",
+        executable="pure_pursuit",
+        name="pure_pursuit",
+        output="screen",
+        parameters=[{
+                     'race_line_csv': race_track_path + '/raceline_v1.csv',
+                     'drive_topic': r'/drive',   # r'/to_drive'
+                     'odom_topic':r'odom',
+                     'odom_frame': r'ego_racecar/odom'
+                     }]
+    )
+
+    pure_pursuit_node = Node(
+        package='raceline',
+        executable='pure_pursuit',
+        output='screen',
+        name='pure_pursuit_node',
+        parameters=[],
+        remappings=[
+            ('/to_drive', '/drive') # order: (from where, where to)
+        ]
+    )
+
+    mpcc_node = Node(
+        package='mpcc',
+        executable='mpcc',
+        output='screen',
+        name='mpcc',
+        parameters=[],
+        remappings=[
+            ('/to_drive', '/drive') # order: (from where, where to)
+        ]
+    )
+
     #vehicle control - manual intervention for autonomous driving
     joy_config = os.path.join(
         get_package_share_directory('vehicle_control'),
@@ -115,6 +165,11 @@ def generate_launch_description():
     ld.add_action(map_server_node)
     ld.add_action(ego_robot_publisher)
     ld.add_action(vehicle_control_node)
-    ld.add_action(hello_world_node)
+
+    # ld.add_action(hello_world_node)
+    # ld.add_action(gap_follow_node)
+    ld.add_action(pure_pursuit_node)
+    # ld.add_action(paw_pure_pursuit_node)
+    # ld.add_action(mpcc_node)
 
     return ld
