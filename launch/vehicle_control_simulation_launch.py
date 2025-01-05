@@ -109,15 +109,19 @@ def generate_launch_description():
         ]
     )
 
+    path_raceline = os.path.join(
+        get_package_share_directory('mpcc'), 'maps')
+    
     mpcc_node = Node(
         package='mpcc',
         executable='mpcc',
         output='screen',
         name='mpcc',
-        parameters=[],
-        remappings=[
-            ('/to_drive', '/drive') # order: (from where, where to)
-        ]
+        parameters=[
+            {   'raceline_csv_path': path_raceline + '/my_map_raceline.csv',
+                'drive_topic': r'/drive'   # r'/to_drive' => for real driving
+            }],
+        remappings=[]
     )
 
     #vehicle control - manual intervention for autonomous driving
@@ -168,8 +172,8 @@ def generate_launch_description():
 
     # ld.add_action(hello_world_node)
     # ld.add_action(gap_follow_node)
-    ld.add_action(pure_pursuit_node)
+    # ld.add_action(pure_pursuit_node)
     # ld.add_action(paw_pure_pursuit_node)
-    # ld.add_action(mpcc_node)
+    ld.add_action(mpcc_node)
 
     return ld
