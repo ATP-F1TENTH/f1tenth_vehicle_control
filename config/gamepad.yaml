@@ -2,12 +2,15 @@ vehicle_control:
   ros_parameters:
     button_index_map:
       axis:
-        angular_z: 0 # Left joystick's y-axis
-        linear_x: 3 # Right joystick's x-axis
-      dead_man_switch: 4 # LB
-      fast_mode: 7 # RT
-      slow_mode: 5 # RB
-      start: 9 #start button
+        angular_z: 0      # Left joystick's y-axis
+        linear_x: 1       # Left joystick's x-axis
+      dead_man_switch: 4  # LB
+      fast_mode: 7        # RT
+      slow_mode: 5        # RB
+      start: 9            # start button
+      headlights: 0       # X
+      headlights_off: 2   # B
+      high_beam: 1        # A
     vehicle:
-      fast_mode_top_speed:  4 #meters per second (15m/s ~50kmh)
-      slow_mode_top_speed:  2 #meters per second (1m/s = 3.6kmh)
+      fast_mode_top_speed: 15   # meters per second (15m/s ~50kmh)
+      slow_mode_top_speed:  2   # meters per second (1m/s = 3.6kmh)
