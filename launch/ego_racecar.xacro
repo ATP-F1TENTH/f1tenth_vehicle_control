@@ -15,7 +15,7 @@
   <xacro:property name="camera_distance_from_base_link_z" value="0.1108" />
   <xacro:property name="camera_height" value="0.05" />
   <xacro:property name="camera_radius" value="0.026" />
-  <xacro:property name="car_name" value="porsche911" />
+  <xacro:property name="car_name" value="ego_racecar" />
 
   <xacro:property name="wheelbase" value="0.326" />
   <xacro:property name="axis_back_z" value="0.0014" />
@@ -34,7 +34,7 @@
     <color rgba="0.3 0.57 1. 1."/>
   </material>
 
-  <link name="base_link">
+  <link name="${car_name}/base_link">
     <visual>
       <origin xyz="${axis_back_x} 0  ${ground_offset+axis_back_z}" rpy=" 0 0 ${pi/2}"/>
       <geometry>
@@ -45,7 +45,7 @@
   </link>
 
   <joint name="base_to_laser_model" type="fixed">
-    <parent link="base_link"/>
+    <parent link="${car_name}/base_link"/>
     <child link="laser"/>
     <origin xyz="${laser_distance_from_base_link_x} 0 ${ground_offset+(laser_height/2)}"/>
   </joint>
@@ -70,13 +70,13 @@
   </link>
 
   <joint name="base_to_camera" type="fixed">
-    <parent link="base_link"/>
+    <parent link="${car_name}/base_link"/>
     <child link="${car_name}/camera"/>
     <origin xyz="${camera_distance_from_base_link_x} ${camera_distance_from_base_link_y} ${ground_offset+camera_distance_from_base_link_z}" rpy=" ${-pi/2+0.087} 0 ${-pi/2}"/>
   </joint>
 
   <joint name="$base_to_back_left_wheel" type="fixed">
-    <parent link="base_link"/>
+    <parent link="${car_name}/base_link"/>
     <child link="${car_name}/back_left_wheel"/>
     <origin xyz="0 ${track_back/2} ${ground_offset}"/>
   </joint>
@@ -92,7 +92,7 @@
   </link>
 
   <joint name="base_to_back_right_wheel" type="fixed">
-    <parent link="base_link"/>
+    <parent link="${car_name}/base_link"/>
     <child link="${car_name}/back_right_wheel"/>
     <origin xyz="0 ${-track_back/2} ${ground_offset}"/>
   </joint>
@@ -108,7 +108,7 @@
   </link>
 
   <joint name="base_to_front_left_hinge" type="fixed">
-    <parent link="base_link"/>
+    <parent link="${car_name}/base_link"/>
     <child link="${car_name}/front_left_hinge"/>
     <origin xyz="${wheelbase} ${track_front/2} ${ground_offset}"/>
   </joint>
@@ -131,7 +131,7 @@
   </link>
 
   <joint name="base_to_front_right_hinge" type="fixed">
-    <parent link="base_link"/>
+    <parent link="${car_name}/base_link"/>
     <child link="${car_name}/front_right_hinge"/>
     <origin xyz="${wheelbase} ${-track_front/2} ${ground_offset}"/>
   </joint>
