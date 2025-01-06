@@ -91,7 +91,7 @@ def generate_launch_description():
         name="pure_pursuit",
         output="screen",
         parameters=[{
-                     'race_line_csv': race_track_path + '/raceline_v1.csv',
+                     'race_line_csv': race_track_path + '/my_map_raceline.csv',
                      'drive_topic': r'/drive',   # r'/to_drive'
                      'odom_topic':r'odom',
                      'odom_frame': r'ego_racecar/odom'
