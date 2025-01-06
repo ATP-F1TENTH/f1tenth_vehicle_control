@@ -82,6 +82,7 @@ class VehicleControl(Node):
         self.__services["underglow"]        = self.create_client(ae_srv.Underglow,      '/carAest/underglow')
         
         #connect to services
+        """ Deactivate for simulation
         try_again_count = 3
         for name in self.__services.keys():
             service = self.__services[name]
@@ -90,6 +91,7 @@ class VehicleControl(Node):
                 try_again_count -= 1
 
         self.setup_vehicle()
+        """
 
     def setup_vehicle(self: "VehicleControl"):
         self.__services["headlights"].call_async(ae_srv.Headlights.Request(headlights=True))

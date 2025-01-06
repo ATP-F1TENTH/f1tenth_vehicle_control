@@ -111,6 +111,7 @@ class VehicleControl(Node):
         self.__sub_race_pos = self.create_subscription(Int16, TOPIC_IN_RACE_POS, self.callback_on_race_pos, 10, callback_group=cb_group_reentrant)
 
         #try to connect to aesthetic control services
+        """ Deactivate for simulation
         self.__services = {}
         self.__services["brakelights"] = self.create_client(ae_srv.BrakeLights, '/carAest/brake_lights')
         self.__services["headlights"] = self.create_client(ae_srv.Headlights, '/carAest/headlights')
@@ -122,6 +123,7 @@ class VehicleControl(Node):
         for service in self.__services.values():
             while not service.wait_for_service(timeout_sec=1.0):
                 self.get_logger().info(f'{service} service not available, waiting again...')
+        """
                 
     
     ############################################################
