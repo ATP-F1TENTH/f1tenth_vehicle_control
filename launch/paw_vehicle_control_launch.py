@@ -132,12 +132,7 @@ def generate_launch_description():
                     {'autostart': True},
                     {'node_names': ['map_server', 'amcl']}] # 'nav2_costmap_2d',
     )
-
-    aeb = Node(
-        package="emergency_braking",
-        executable="emergency_braking",
-        name="emergency_braking"
-    )
+    
     #driver for lidar
     lidar_launchfile = IncludeLaunchDescription(
                         PythonLaunchDescriptionSource([
