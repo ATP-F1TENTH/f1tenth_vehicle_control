@@ -109,18 +109,18 @@ def generate_launch_description():
         ]
     )
 
-    path_raceline = os.path.join(
-        get_package_share_directory('mpcc'), 'maps')
-    
+    # mpcc
+    mpcc_config = os.path.join(
+        get_package_share_directory('mpcc'),
+        'config',
+        'sim.yaml'
+    )
     mpcc_node = Node(
         package='mpcc',
         executable='mpcc',
         output='screen',
         name='mpcc',
-        parameters=[
-            {   'raceline_csv_path': path_raceline + '/my_map_raceline.csv',
-                'drive_topic': r'/drive'   # r'/to_drive' => for real driving
-            }],
+        parameters=[mpcc_config],
         remappings=[]
     )
 
