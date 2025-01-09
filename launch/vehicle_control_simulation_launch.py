@@ -113,7 +113,7 @@ def generate_launch_description():
     mpcc_config = os.path.join(
         get_package_share_directory('mpcc'),
         'config',
-        'sim.yaml'
+        'sim_launch.yaml'
     )
     mpcc_node = Node(
         package='mpcc',

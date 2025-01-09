@@ -36,6 +36,21 @@ def generate_launch_description():
         name='pure_pursuit_node'
     )
 
+    # mpcc
+    mpcc_config = os.path.join(
+        get_package_share_directory('mpcc'),
+        'config',
+        'real_launch.yaml'
+    )
+    mpcc_node = Node(
+        package='mpcc',
+        executable='mpcc',
+        output='screen',
+        name='mpcc',
+        parameters=[mpcc_config],
+        remappings=[]
+    )
+
     #vehicle control - manual intervention for autonomous driving
     joy_config = os.path.join(
         get_package_share_directory('vehicle_control'),
@@ -143,6 +158,7 @@ def generate_launch_description():
 
     ld.add_action(pure_pursuit_node)
     #ld.add_action(gap_follower_node)
+    # ld.add_action(mpcc_node)
 
     ld.add_action(joy_linux_node)
     ld.add_action(lidar_launchfile)
