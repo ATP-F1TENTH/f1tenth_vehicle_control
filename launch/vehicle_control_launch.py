@@ -36,6 +36,23 @@ def generate_launch_description():
         name='pure_pursuit_node'
     )
 
+    # pure pursuit race track follower
+    race_track_path = os.path.join(
+        get_package_share_directory('pure_pursuit'), 'config')
+    
+    paw_pure_pursuit_node = Node(
+        package="pure_pursuit",
+        executable="pure_pursuit",
+        name="pure_pursuit",
+        output="screen",
+        parameters=[{
+                     'race_line_csv': race_track_path + '/my_map_raceline.csv',
+                     'drive_topic': r'/to_drive',
+                     'odom_topic':r'odom',
+                     'odom_frame': r'ego_racecar/odom'
+                     }]
+    )
+
     # mpcc
     mpcc_config = os.path.join(
         get_package_share_directory('mpcc'),
@@ -157,7 +174,8 @@ def generate_launch_description():
     ld.add_action(vehicle_control_node)
 
     ld.add_action(pure_pursuit_node)
-    #ld.add_action(gap_follower_node)
+    # ld.add_action(paw_pure_pursuit_node)
+    # ld.add_action(gap_follower_node)
     # ld.add_action(mpcc_node)
 
     ld.add_action(joy_linux_node)

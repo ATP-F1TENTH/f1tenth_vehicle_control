@@ -139,13 +139,6 @@ def generate_launch_description():
         parameters=[joy_config_dict]
     )
 
-    #driver for the gamepad - NOT USED
-    joy_linux_node = Node(
-        package="joy_linux",
-        executable="joy_linux_node",
-        emulate_tty="true"
-    )
-
 
     #transforms required for mapping with nav2
     transform_odom_map = Node(
@@ -160,6 +153,15 @@ def generate_launch_description():
         )
 
 
+    # Get simulation config from yaml file
+    vc_sim_config = os.path.join(
+        get_package_share_directory('vehicle_control'),
+        'config',
+        'vc_sim_settings.yaml'
+        )
+    vc_sim_config_dict = yaml.safe_load(open(vc_sim_config, 'r'))
+
+
     # finalize
     ld.add_action(transform_odom_map)
     ld.add_action(transform_odom_baselink)
@@ -170,10 +172,18 @@ def generate_launch_description():
     ld.add_action(ego_robot_publisher)
     ld.add_action(vehicle_control_node)
 
-    # ld.add_action(hello_world_node)
-    # ld.add_action(gap_follow_node)
-    # ld.add_action(pure_pursuit_node)
-    # ld.add_action(paw_pure_pursuit_node)
-    ld.add_action(mpcc_node)
+    match (vc_sim_config_dict["active_planner"]):
+        case "hello_world":
+            ld.add_action(hello_world_node)
+        case "gap_follow":
+            ld.add_action(gap_follow_node)
+        case "pure_pursuit":
+            ld.add_action(pure_pursuit_node)
+        case "paw_pure_pursuit":
+            ld.add_action(paw_pure_pursuit_node)
+        case "mpcc":
+            ld.add_action(mpcc_node)
+        case _:
+            print("No valid planner selected.")
 
     return ld

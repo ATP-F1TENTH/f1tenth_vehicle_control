@@ -29,6 +29,7 @@ setup(
     entry_points={
         'console_scripts': [
             'vehicle_control = vehicle_control.vehicle_control:main',
+            'paw_vehicle_control = vehicle_control.paw_vehicle_control:main'
         ],
     },
 )

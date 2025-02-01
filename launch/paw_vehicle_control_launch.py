@@ -23,9 +23,9 @@ def generate_launch_description():
     joy_config_dict = yaml.safe_load(open(joy_config, 'r'))
     vehicle_control_node = Node(
         package='vehicle_control',
-        executable='vehicle_control',
+        executable='paw_vehicle_control',
         output='screen',
-        name='vehicle_control',
+        name='paw_vehicle_control',
         parameters=[joy_config_dict,{
                     'car_id' : ros_domain_id
                     }]
@@ -269,7 +269,7 @@ def generate_launch_description():
     ld.add_action(nav_lifecycle_node)
     ld.add_action(map_server_node)
     ld.add_action(amcl_node)
-    #ld.add_action(slam_toolbox_node)
+    # ld.add_action(slam_toolbox_node)
 
     ld.add_action(emergency_braking_node)
     ld.add_action(camera_node)
